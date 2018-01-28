@@ -6,6 +6,14 @@ import (
 	"fmt"
 )
 
+
+//отправка сообщений
+/*
+fm - адрес отправителя
+fp - пароль отправителя
+tm - адрес получателя
+m - сообщение
+ */
 func Send(fm string, fp string, tm string, m string) {
 
 	var k []string
@@ -27,6 +35,7 @@ func Send(fm string, fp string, tm string, m string) {
 	fp,
 	"smtp.yandex.ru")
 
+	//25 порт бан от яндекса
 	err := smtp.SendMail("smtp.yandex.ru:465",
 		auth,
 		fm,

@@ -14,6 +14,8 @@ var allU = make(chan []UsersStruct)
 var allD = make(chan []DevicesStruct)
 var allM = make(chan DevicesMetricStruct)
 
+//  парсим файл конфигурации в структуру
+// подключаемся к БД по данным из конфигурации
 func init() {
 
 
@@ -32,7 +34,7 @@ func init() {
 	}
 }
 
-
+//получить всех юзеров БД (владельцы девайсов)
 func GetAllUsersFromDB() []UsersStruct {
 	var usersSlice []UsersStruct
 	rows, err := DB.Query("SELECT * FROM users")
@@ -57,6 +59,7 @@ func GetAllUsersFromDB() []UsersStruct {
 	return usersSlice
 }
 
+//получить все девайсы из БД
 func GetAllDevicesFromDB() []DevicesStruct {
 
 	var devicesSlice []DevicesStruct
@@ -81,7 +84,8 @@ func GetAllDevicesFromDB() []DevicesStruct {
 	return devicesSlice
 }
 
-
+//проверка что запись новой метрики в таблицу метрик будет уникальна
+//инкремент
 func TableIDs() (lastID int) {
 	rows, err := DB.Query("SELECT COUNT(ID) FROM device_metrics")
 	AllError(err)
@@ -103,6 +107,8 @@ func TableIDs() (lastID int) {
 	return lastID
 }
 
+//проверка что запись в таблицу сообщений будет уникальна
+//инкеремент
 func TableIDsAlerts() (lastID int) {
 	rows, err := DB.Query("SELECT COUNT(ID) FROM device_alerts")
 	AllError(err)
@@ -124,6 +130,7 @@ func TableIDsAlerts() (lastID int) {
 	return lastID
 }
 
+// получить email владельца девайса, кому отправить уведомление
 func GetMailToSend(p int) (email string) {
 	rows, err := DB.Query("select u.email from devices d left join users u on u.id = d.user_id where d.id = $1", p)
 	AllError(err)

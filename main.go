@@ -6,6 +6,19 @@ import (
 	"math/rand"
 )
 
+
+//генерируем метрики
+/*
+передаем слайс всех девайсов
+прозодим в цикле
+создаем новою метрику
+генерируем случайные номера для метрик от 1...5
+записываем в БД - device_metric
+проверяем значения метрик, если == значению в файле myconf
+создаем запись в БД _ alert
+вызываем отправку email владельцу девайса
+
+ */
 func StartWrite(dev []DevicesStruct) DevicesMetricStruct {
 
 
@@ -63,17 +76,19 @@ func main() {
 
 	rand.Seed(time.Now().Unix())
 
+	//получаем всех юзеров БД
 	go func() {
 		allU <- GetAllUsersFromDB()
 	}()
 
+	//получаем все девайсы
 	go func() {
 		allD <- GetAllDevicesFromDB()
 	}()
 
 	allDevSlice := <-allD
 
-
+	//создаем метрики
 	go func() {
 			allM <- StartWrite(allDevSlice)
 

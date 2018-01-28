@@ -2,18 +2,21 @@ package main
 
 import "time"
 
+//владельцы девайсов
 type UsersStruct struct {
 	Id    int
 	Name  string
 	Email string
 }
 
+//девайс
 type DevicesStruct struct {
 	Id     int
 	Name   string
 	Userid int
 }
 
+//метрика
 type DevicesMetricStruct struct {
 	Id       int
 	Deviceid int
@@ -27,12 +30,14 @@ type DevicesMetricStruct struct {
 	ServerTime time.Time
 }
 
+//сообщение о метриках
 type DeviceAlertStruct struct {
 	Id       int
 	Deviceid int
 	Message  string
 }
 
+//файл конфигурации
 type MyConfig struct {
 	DBuser string
 	DBname string
@@ -43,6 +48,7 @@ type MyConfig struct {
 	Tmail string
 }
 
+//общие err
 func AllError(err error) {
 	if err != nil {
 		panic(err)
