@@ -2,22 +2,17 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
-	"github.com/BurntSushi/toml"
 	"fmt"
-	"log"
+	"github.com/BurntSushi/toml"
+	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 var Myc MyConfig
-var allU = make(chan []UsersStruct)
-var allD = make(chan []DevicesStruct)
-var allM = make(chan DevicesMetricStruct)
 
 //  парсим файл конфигурации в структуру
 // подключаемся к БД по данным из конфигурации
 func init() {
-
 
 	if _, err := toml.DecodeFile("myconf.toml", &Myc); err != nil {
 		fmt.Println(err)
@@ -27,68 +22,50 @@ func init() {
 	var err error
 	dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", Myc.DBuser, Myc.DBpassword, Myc.DBname)
 	DB, err = sql.Open("postgres", dbinfo)
-	AllError(err)
+	if err != nil {
+		panic(err)
+	}
+	//defer DB.Close() //базу не закрываем она нам еще понадобится
 
 	if err = DB.Ping(); err != nil {
 		panic(err)
 	}
 }
 
-//получить всех юзеров БД (владельцы девайсов)
-func GetAllUsersFromDB() []UsersStruct {
-	var usersSlice []UsersStruct
-	rows, err := DB.Query("SELECT * FROM users")
+//получить все записи из таблицы устройств в канал
+func GetAllDevicesFromDB() chan DevicesStruct {
+
+	dev := make(chan DevicesStruct)
+	rows, err := DB.Query("SELECT * FROM devices;")
 	if err != nil {
-		fmt.Println(err.Error())
-		//return
+		panic(err)
 	}
 	defer rows.Close()
-
 	for rows.Next() {
-		foundUser := UsersStruct{}
-		err := rows.Scan(&foundUser.Id, &foundUser.Name, &foundUser.Email)
-		AllError(err)
-		usersSlice = append(usersSlice, UsersStruct{Id: foundUser.Id, Name: foundUser.Name, Email: foundUser.Email})
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	log.Println(len(usersSlice))
-	//log.Println(usersSlice)
-	return usersSlice
-}
-
-//получить все девайсы из БД
-func GetAllDevicesFromDB() []DevicesStruct {
-
-	var devicesSlice []DevicesStruct
-	rows, err := DB.Query("SELECT * FROM devices")
-	AllError(err)
-	defer rows.Close()
-
-	for rows.Next() {
-		oneDevice := DevicesStruct{}
-		err := rows.Scan(&oneDevice.Id, &oneDevice.Name, &oneDevice.Userid)
+		newDevice := DevicesStruct{}
+		err := rows.Scan(&newDevice.Id, &newDevice.Name, &newDevice.Userid)
 		if err != nil {
-			fmt.Println(err.Error())
-			//return
+			panic(err)
 		}
-		devicesSlice = append(devicesSlice, DevicesStruct{Id: oneDevice.Id, Name: oneDevice.Name, Userid: oneDevice.Userid})
+		dev <- newDevice
 	}
+
 	if err = rows.Err(); err != nil {
 		fmt.Println(err.Error())
 	}
-	log.Println(len(devicesSlice))
-	//log.Println(devicesSlice)
-	return devicesSlice
+
+	return dev
+
 }
 
-//проверка что запись новой метрики в таблицу метрик будет уникальна
+//проверка что запись новой строки в таблицу  будет уникальна
 //инкремент
-func TableIDs() (lastID int) {
-	rows, err := DB.Query("SELECT COUNT(ID) FROM device_metrics")
-	AllError(err)
+func TableIDs(nameT string) (lastID int) {
+	stringQ := "SELECT COUNT(ID) FROM " + nameT + ";"
+	rows, err := DB.Query(stringQ)
+	if err != nil {
+		panic(err)
+	}
 	defer rows.Close()
 
 	for rows.Next() {
@@ -105,49 +82,4 @@ func TableIDs() (lastID int) {
 	lastID++
 	//log.Printf("LastID  - %T", lastID)
 	return lastID
-}
-
-//проверка что запись в таблицу сообщений будет уникальна
-//инкеремент
-func TableIDsAlerts() (lastID int) {
-	rows, err := DB.Query("SELECT COUNT(ID) FROM device_alerts")
-	AllError(err)
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(&lastID)
-		if err != nil {
-			fmt.Println(err.Error())
-			//return
-		}
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	lastID++
-	//log.Printf("LastID  - %T", lastID)
-	return lastID
-}
-
-// получить email владельца девайса, кому отправить уведомление
-func GetMailToSend(p int) (email string) {
-	rows, err := DB.Query("select u.email from devices d left join users u on u.id = d.user_id where d.id = $1", p)
-	AllError(err)
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(&email)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-	}
-
-	if err = rows.Err(); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	//fmt.Println(email)
-	return email
-
 }

@@ -39,19 +39,11 @@ type DeviceAlertStruct struct {
 
 //файл конфигурации
 type MyConfig struct {
-	DBuser string
-	DBname string
-	DBpassword string
+	DBuser         string
+	DBname         string
+	DBpassword     string
 	BadMetricParam int `toml:bmp`
-	Fmail string
-	Fpass string
-	Tmail string
+	Fmail          string
+	Fpass          string
+	Tmail          string
 }
-
-//общие err
-func AllError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
