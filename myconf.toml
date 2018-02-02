@@ -2,5 +2,3 @@ dbuser = "postgres"
 dbpassword = "gfhjkm"
 dbname = "dm"
 bpm = 711
-fmail = "fortest011@yandex.ru"
-fpass = "gfhjkm011"

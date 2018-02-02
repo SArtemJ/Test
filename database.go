@@ -10,8 +10,8 @@ import (
 var DB *sql.DB
 var Myc MyConfig
 
-//  парсим файл конфигурации в структуру
-// подключаемся к БД по данным из конфигурации
+
+// подключаемся к БД по данным из конфигурации toml
 func init() {
 
 	if _, err := toml.DecodeFile("myconf.toml", &Myc); err != nil {
@@ -33,6 +33,7 @@ func init() {
 }
 
 //получить все записи из таблицы устройств в канал
+//возможна эту функция лишняя
 func GetAllDevicesFromDB() chan DevicesStruct {
 
 	dev := make(chan DevicesStruct)
@@ -59,7 +60,6 @@ func GetAllDevicesFromDB() chan DevicesStruct {
 }
 
 //проверка что запись новой строки в таблицу  будет уникальна
-//инкремент
 func TableIDs(nameT string) (lastID int) {
 	stringQ := "SELECT COUNT(ID) FROM " + nameT + ";"
 	rows, err := DB.Query(stringQ)

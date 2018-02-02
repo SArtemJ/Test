@@ -2,21 +2,20 @@ package main
 
 import "time"
 
-//владельцы девайсов
 type UsersStruct struct {
 	Id    int
 	Name  string
 	Email string
 }
 
-//девайс
+//устройства
 type DevicesStruct struct {
 	Id     int
 	Name   string
 	Userid int
 }
 
-//метрика
+//метрика устройства
 type DevicesMetricStruct struct {
 	Id       int
 	Deviceid int
@@ -30,7 +29,7 @@ type DevicesMetricStruct struct {
 	ServerTime time.Time
 }
 
-//сообщение о метриках
+//сообщение о плохих метриках
 type DeviceAlertStruct struct {
 	Id       int
 	Deviceid int
