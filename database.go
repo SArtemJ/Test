@@ -49,7 +49,7 @@ func GetAllDevicesFromDB() []DevicesStruct {
 		if err != nil {
 			//panic(err)
 		}
-		log.Println(newDevice)
+		//log.Println(newDevice)
 		dSlice = append(dSlice, newDevice)
 	}
 
