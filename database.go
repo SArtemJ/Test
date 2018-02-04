@@ -71,6 +71,7 @@ func CreateMetric(d []DevicesStruct) {
 		}
 		newMetric.LocalTime = time.Now().AddDate(0, 0, -1)
 		newMetric.ServerTime = time.Now()
+		log.Println(newMetric)
 
 		//записываем метрику в БД
 		var stringQ = "INSERT INTO device_metrics (Id, device_Id, metric_1, metric_2, metric_3, metric_4, metric_5, local_time, server_time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
@@ -109,7 +110,7 @@ func checkMetrics(r DevicesMetricStruct) {
 			setValues(newAlert.Deviceid, newAlert.Message)
 			// Отправка из Redis
 			SendEmail("test0151@yandex.ru", getValues(newAlert.Deviceid))
-			//getValues(newAlert.Deviceid) //для проверки
+			log.Println(getValues(newAlert.Deviceid)) //для проверки
 			//пишем алерты в БД
 			_, err := DB.Exec("INSERT INTO device_alerts (id, device_id, message) VALUES ($1, $2, $3)", newAlert.Id, newAlert.Deviceid, newAlert.Message)
 			if err != nil {
