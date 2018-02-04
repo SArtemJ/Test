@@ -17,13 +17,8 @@ type DevicesStruct struct {
 
 //метрика устройства
 type DevicesMetricStruct struct {
-	Id       int
-	Deviceid int
-	//metric1    int
-	//metric2    int
-	//metric3    int
-	//metric4    int
-	//metric5    int
+	Id         int
+	Deviceid   int
 	Metric     [5]int
 	LocalTime  time.Time
 	ServerTime time.Time
