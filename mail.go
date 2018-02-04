@@ -5,7 +5,6 @@ import (
 	"net/smtp"
 )
 
-var FromE = ""
 
 func SendEmail(to, body string) {
 	from := "test0120181@gmail.com"
